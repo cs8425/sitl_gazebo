@@ -253,12 +253,12 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://tailsitter/meshes/iris_prop_ccw.dae</uri>
+            <uri>model://tailsitter/meshes/iris_prop_cw.dae</uri>
           </mesh>
         </geometry>
         <material>
           <script>
-            <name>Gazebo/DarkGrey</name>
+            <name>Gazebo/Blue</name>
             <uri>__default__</uri>
           </script>
         </material>
@@ -319,7 +319,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://tailsitter/meshes/iris_prop_ccw.dae</uri>
+            <uri>model://tailsitter/meshes/iris_prop_cw.dae</uri>
           </mesh>
         </geometry>
         <material>
@@ -489,6 +489,7 @@
         </ode>
       </physics>
     </joint>
+
     <plugin name="left_wing" filename="libLiftDragPlugin.so">
       <a0>0.05984281113</a0>
       <cla>4.752798721</cla>
@@ -564,7 +565,7 @@
       <upward>0 1 0</upward>
       <link_name>base_link</link_name>
     </plugin>
-    <plugin name='rosbag' filename='librotors_gazebo_multirotor_base_plugin.so'>
+   <plugin name='rosbag' filename='librotors_gazebo_multirotor_base_plugin.so'>
       <robotNamespace></robotNamespace>
       <linkName>base_link</linkName>
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
@@ -650,10 +651,13 @@
       <accelerometerBiasCorrelationTime>300.0</accelerometerBiasCorrelationTime>
       <accelerometerTurnOnBiasSigma>0.196</accelerometerTurnOnBiasSigma>
     </plugin>
-    <plugin name='mavlink_interface' filename='librotors_gazebo_mavlink_interface.so'>
+<!--    <plugin name='mavlink_interface' filename='librotors_gazebo_mavlink_interface.so'>-->
+    <plugin name='sitl_interface' filename='librotors_gazebo_sitl_interface.so'>
       <robotNamespace></robotNamespace>
       <imuSubTopic>/imu</imuSubTopic>
       <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
+      <fc_addr>127.0.0.1</fc_addr>
+      <fc_udp_port>9003</fc_udp_port>
       <control_channels>
         <channel name="rotor0">
           <input_index>0</input_index>

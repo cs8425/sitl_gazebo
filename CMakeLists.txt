@@ -30,8 +30,8 @@ find_package(Boost REQUIRED COMPONENTS system thread timer)
 if (BUILD_GSTREAMER_PLUGIN)
   find_package(GStreamer)
 endif()
-add_subdirectory( external/OpticalFlow OpticalFlow )
-set( OpticalFlow_LIBS "OpticalFlow" )
+# add_subdirectory( external/OpticalFlow OpticalFlow )
+# set( OpticalFlow_LIBS "OpticalFlow" )
 
 # see if catkin was invoked to build this
 if (CATKIN_DEVEL_PREFIX)
@@ -196,25 +196,27 @@ add_library(rotors_gazebo_controller_interface SHARED src/gazebo_controller_inte
 add_library(rotors_gazebo_motor_model SHARED src/gazebo_motor_model.cpp)
 add_library(rotors_gazebo_multirotor_base_plugin SHARED src/gazebo_multirotor_base_plugin.cpp)
 add_library(rotors_gazebo_imu_plugin SHARED src/gazebo_imu_plugin.cpp)
-add_library(gazebo_opticalFlow_plugin SHARED src/gazebo_opticalFlow_plugin.cpp)
-target_link_libraries(gazebo_opticalFlow_plugin ${OpticalFlow_LIBS})
+# add_library(gazebo_opticalFlow_plugin SHARED src/gazebo_opticalFlow_plugin.cpp)
+# target_link_libraries(gazebo_opticalFlow_plugin ${OpticalFlow_LIBS})
 add_library(gazebo_lidar_plugin SHARED src/gazebo_lidar_plugin.cpp)
 add_library(rotors_gazebo_mavlink_interface SHARED src/gazebo_mavlink_interface.cpp src/geo_mag_declination.cpp)
 add_library(rotors_gazebo_wind_plugin SHARED src/gazebo_wind_plugin.cpp)
-add_library(gazebo_geotagged_images_plugin SHARED src/gazebo_geotagged_images_plugin.cpp)
+# add_library(gazebo_geotagged_images_plugin SHARED src/gazebo_geotagged_images_plugin.cpp)
 add_library(gazebo_sonar_plugin SHARED src/gazebo_sonar_plugin.cpp)
+add_library(rotors_gazebo_sitl_interface SHARED src/gazebo_sitl_interface.cpp)
 
 set(plugins
   rotors_gazebo_controller_interface
   rotors_gazebo_motor_model
   rotors_gazebo_multirotor_base_plugin
   rotors_gazebo_imu_plugin
-  gazebo_opticalFlow_plugin
+#  gazebo_opticalFlow_plugin
   gazebo_lidar_plugin
   rotors_gazebo_mavlink_interface
   rotors_gazebo_wind_plugin
-  gazebo_geotagged_images_plugin
+#  gazebo_geotagged_images_plugin
   gazebo_sonar_plugin
+  rotors_gazebo_sitl_interface
   )
 
 if (GSTREAMER_FOUND)

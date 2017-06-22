@@ -172,13 +172,19 @@ void GazeboMotorModel::OnUpdate(const common::UpdateInfo& _info) {
 
 void GazeboMotorModel::VelocityCallback(CommandMotorSpeedPtr &rot_velocities) {
   if(rot_velocities->motor_speed_size() < motor_number_) {
-    std::cout  << "You tried to access index " << motor_number_
-      << " of the MotorSpeed message array which is of size " << rot_velocities->motor_speed_size() << "." << std::endl;
-  } else ref_motor_rot_vel_ = std::min(static_cast<double>(rot_velocities->motor_speed(motor_number_)), static_cast<double>(max_rot_velocity_));
+    gzerr  << "You tried to access index " << motor_number_
+      << " of the MotorSpeed message array which is of size " << rot_velocities->motor_speed_size() << ".\n";
+  } else {
+    ref_motor_rot_vel_ = std::min(static_cast<double>(rot_velocities->motor_speed(motor_number_)), static_cast<double>(max_rot_velocity_));
+//    gzdbg << "[VelocityCallback][" << motor_number_ << "]" << ref_motor_rot_vel_ << "\n";
+  }
 }
 
 void GazeboMotorModel::UpdateForcesAndMoments() {
   motor_rot_vel_ = joint_->GetVelocity(0);
+
+//  gzdbg << "[rotation rate][" << motor_number_ << "]" << motor_rot_vel_ << "\n";
+
   if (motor_rot_vel_ / (2 * M_PI) > 1 / (2 * sampling_time_)) {
     gzerr << "Aliasing on motor [" << motor_number_ << "] might occur. Consider making smaller simulation time steps or raising the rotor_velocity_slowdown_sim_ param.\n";
   }
@@ -218,6 +224,8 @@ void GazeboMotorModel::UpdateForcesAndMoments() {
   // - \omega * \mu_1 * V_A^{\perp}
   rolling_moment = -std::abs(real_motor_velocity) * rolling_moment_coefficient_ * body_velocity_perpendicular;
   parent_links.at(0)->AddTorque(rolling_moment);
+
+
   // Apply the filter on the motor's velocity.
   double ref_motor_rot_vel;
   ref_motor_rot_vel = rotor_velocity_filter_->updateFilter(ref_motor_rot_vel_, sampling_time_);
