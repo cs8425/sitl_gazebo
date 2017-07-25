@@ -86,6 +86,7 @@ void GazeboMotorModel::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   }
   else
   {
+    pid_.Init(0.1, 0, 0, 0, 0, 3, -3);
     use_pid_ = false;
   }
 
@@ -185,12 +186,13 @@ void GazeboMotorModel::UpdateForcesAndMoments() {
 
 //  gzdbg << "[rotation rate][" << motor_number_ << "]" << motor_rot_vel_ << "\n";
 
-  if (motor_rot_vel_ / (2 * M_PI) > 1 / (2 * sampling_time_)) {
-    gzerr << "Aliasing on motor [" << motor_number_ << "] might occur. Consider making smaller simulation time steps or raising the rotor_velocity_slowdown_sim_ param.\n";
-  }
+//  if (motor_rot_vel_ / (2 * M_PI) > 1 / (2 * sampling_time_)) {
+//    gzerr << "Aliasing on motor [" << motor_number_ << "] might occur. Consider making smaller simulation time steps or raising the rotor_velocity_slowdown_sim_ param.\n";
+//  }
   double real_motor_velocity = motor_rot_vel_ * rotor_velocity_slowdown_sim_;
   double force = real_motor_velocity * real_motor_velocity * motor_constant_;
 
+/*
   // scale down force linearly with forward speed
   // XXX this has to be modelled better
   math::Vector3 body_velocity = link_->GetWorldLinearVel();
@@ -224,36 +226,19 @@ void GazeboMotorModel::UpdateForcesAndMoments() {
   // - \omega * \mu_1 * V_A^{\perp}
   rolling_moment = -std::abs(real_motor_velocity) * rolling_moment_coefficient_ * body_velocity_perpendicular;
   parent_links.at(0)->AddTorque(rolling_moment);
-
+*/
 
   // Apply the filter on the motor's velocity.
   double ref_motor_rot_vel;
   ref_motor_rot_vel = rotor_velocity_filter_->updateFilter(ref_motor_rot_vel_, sampling_time_);
 
-#if 0 //FIXME: disable PID for now, it does not play nice with the PX4 CI system.
-  if (use_pid_)
-  {
-    double err = joint_->GetVelocity(0) - turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_;
-    double rotorForce = pid_.Update(err, sampling_time_);
-    joint_->SetForce(0, rotorForce);
-    // gzerr << "rotor " << joint_->GetName() << " : " << rotorForce << "\n";
-  }
-  else
-  {
-#if GAZEBO_MAJOR_VERSION >= 7
-    // Not desirable to use SetVelocity for parts of a moving model
-    // impact on rest of the dynamic system is non-physical.
-    joint_->SetVelocity(0, turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_);
-#elif GAZEBO_MAJOR_VERSION >= 6
-    // Not ideal as the approach could result in unrealistic impulses, and
-    // is only available in ODE
-    joint_->SetParam("fmax", 0, 2.0);
-    joint_->SetParam("vel", 0, turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_);
-#endif
-  }
-#else
-  joint_->SetVelocity(0, turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_);
-#endif /* if 0 */
+
+//  double err = joint_->GetVelocity(0) - turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_;
+  double err = motor_rot_vel_ - turning_direction_ * ref_motor_rot_vel / rotor_velocity_slowdown_sim_;
+  double rotorForce = pid_.Update(err, sampling_time_);
+  joint_->SetForce(0, rotorForce);
+  // gzerr << "rotor " << joint_->GetName() << " : " << rotorForce << "\n";
+
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboMotorModel);
